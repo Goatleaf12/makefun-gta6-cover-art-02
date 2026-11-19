@@ -16,6 +16,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
 
+// Sunset State Cover Studio: a multi-panel, sunset-graded cover maker — this entry's own title, printed on hand-in.
+const ENTRY_NAME = 'Sunset State Cover Studio — GTA-style cover art maker (gta6-cover-art-01)';
+
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
@@ -38,3 +41,5 @@ writeFileSync(
     app_path_max_bytes: 1000,
   }),
 );
+
+console.log(`entry ready: ${ENTRY_NAME}`);

@@ -3,21 +3,114 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Sunset State Cover Studio — GTA-style cover art maker</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
+<header class="topbar">
+  <div class="brand">SUNSET STATE <span>COVER STUDIO</span></div>
+  <ol class="steps">
+    <li><b>1</b> Add photos</li>
+    <li><b>2</b> Pick a size</li>
+    <li><b>3</b> Export PNG</li>
+  </ol>
+  <button id="btn-export-all" type="button" class="export-all">EXPORT ALL 3 SIZES</button>
+</header>
+
+<div class="app-shell">
+  <aside class="col photos-col">
+    <h2>PHOTOS</h2>
+    <button id="btn-add-photos" type="button" class="primary">+ ADD YOUR PHOTOS</button>
+    <input id="file-input" type="file" accept="image/*" multiple hidden>
+    <div id="photo-grid" class="photo-grid"></div>
+    <button id="btn-spread" type="button">SPREAD PHOTOS ACROSS PANELS</button>
+    <p class="hint">Drag a photo onto a panel to replace it, or use FILL ALL to run one photo through every panel. Photos never leave your machine.</p>
+  </aside>
+
+  <section class="col stage-col" id="stage">
+    <div class="size-tabs" role="tablist">
+      <button class="size-tab active" type="button" data-size="wide">1920 × 1080</button>
+      <button class="size-tab" type="button" data-size="tall">1080 × 1350</button>
+      <button class="size-tab" type="button" data-size="square">1080 × 1080</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="preview-canvas" width="1152" height="648" aria-label="Live cover preview"></canvas>
+    </div>
+    <div class="status-bar">
+      <span id="status-line">LOADING…</span>
+      <span id="size-line"></span>
+    </div>
+    <p class="hint">Click a panel to select it · drag to pan · scroll to zoom · double-click to re-centre</p>
   </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+
+  <aside class="col controls-col">
+    <h2>COVER RECIPES</h2>
+    <div id="recipe-list" class="recipe-list"></div>
+
+    <h2>LAYOUT</h2>
+    <div id="layout-grid" class="layout-grid"></div>
+
+    <h2>GRADE</h2>
+    <div id="grade-list" class="grade-list"></div>
+
+    <h2>PRINT FINISH</h2>
+    <div class="sliders">
+      <label>Strength <input id="fx-strength" type="range" min="0" max="1" step="0.01" value="0.85"><output>0.85</output></label>
+      <label>Contrast <input id="fx-contrast" type="range" min="0.6" max="1.4" step="0.01" value="1"><output>1.00</output></label>
+      <label>Saturation <input id="fx-saturation" type="range" min="0.6" max="1.4" step="0.01" value="1"><output>1.00</output></label>
+      <label>Grain <input id="fx-grain" type="range" min="0" max="1" step="0.01" value="0.35"><output>0.35</output></label>
+      <label>Vignette <input id="fx-vignette" type="range" min="0" max="1" step="0.01" value="0.45"><output>0.45</output></label>
+    </div>
+    <div class="toggles">
+      <label><input id="opt-halftone" type="checkbox"> Halftone dots</label>
+      <label><input id="opt-paper" type="checkbox" checked> Paper texture</label>
+      <label><input id="opt-tags" type="checkbox" checked> Panel tags</label>
+      <label>Gutters
+        <select id="opt-gutter">
+          <option value="auto">Auto (grade)</option>
+          <option value="dark">Dark</option>
+          <option value="cream">Cream</option>
+        </select>
+      </label>
+    </div>
+
+    <h2>CAPTION</h2>
+    <div class="fields">
+      <label>Title <input id="cap-title" type="text" maxlength="26" value="SUNSET STATE"></label>
+      <label>Script subtitle <input id="cap-subtitle" type="text" maxlength="40" value="welcome to leonida"></label>
+      <label>Tagline <input id="cap-tagline" type="text" maxlength="44" value="EVERY SUNSET HAS A PRICE"></label>
+      <label>Review quote <input id="cap-quote" type="text" maxlength="52" value="A POSTCARD FROM THE EDGE OF THE LAW"></label>
+      <label>Seal <input id="cap-seal" type="text" maxlength="30" value="ORIGINAL COVER ART"></label>
+      <label>Seal sub-line <input id="cap-sealsub" type="text" maxlength="16" value="EST. 2026"></label>
+      <label>Volume <input id="cap-volume" type="text" maxlength="10" value="VOL. 06"></label>
+      <label>Wanted word <input id="cap-wanted" type="text" maxlength="16" value="MOST WANTED"></label>
+      <label>Ribbon <input id="cap-ribbon" type="text" maxlength="24" value="COLLECTOR'S EDITION"></label>
+      <label>Stars <input id="cap-stars" type="number" min="0" max="10" step="1" value="5"></label>
+    </div>
+
+    <h2>PANEL</h2>
+    <p id="panel-info" class="panel-info">PANEL 1</p>
+    <div class="fields">
+      <label>Location tag <input id="tag-place" type="text" maxlength="24"></label>
+      <label>Tag sub-line <input id="tag-sub" type="text" maxlength="34"></label>
+    </div>
+    <div class="btn-row">
+      <button id="btn-recentre" type="button">RE-CENTRE</button>
+      <button id="btn-fill-selected" type="button">FILL ALL FROM PANEL</button>
+    </div>
+
+    <h2>EXPORT</h2>
+    <div class="btn-col">
+      <button class="btn-export" type="button" data-size="wide">EXPORT 1920 × 1080 PNG</button>
+      <button class="btn-export" type="button" data-size="tall">EXPORT 1080 × 1350 PNG</button>
+      <button class="btn-export" type="button" data-size="square">EXPORT 1080 × 1080 PNG</button>
+    </div>
+    <p class="hint">Exports render the same drawing as the preview, at full size.</p>
+  </aside>
+</div>
+
+<div id="shot-stage"><canvas id="shot-canvas"></canvas></div>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
